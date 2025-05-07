@@ -2,127 +2,120 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Discount and Tax Calculator</title>
+  <title>Discounted Unit Price Calculator</title>
   <style>
     body {
       font-family: Arial, sans-serif;
-      background: #f4f7f9;
-      padding: 20px;
-      max-width: 600px;
+      padding: 30px;
+      background-color: #f4f4f4;
+      max-width: 500px;
       margin: auto;
     }
     h2 {
       text-align: center;
       color: #333;
     }
-    .input-group {
-      margin-bottom: 15px;
-    }
     label {
       display: block;
-      margin-bottom: 5px;
-      font-weight: 600;
+      margin-top: 15px;
+      font-weight: bold;
     }
     input {
       width: 100%;
-      padding: 10px;
+      padding: 8px;
       font-size: 16px;
+      margin-top: 5px;
+      margin-bottom: 15px;
     }
-    .output {
-      margin-top: 20px;
-      padding: 15px;
+    .result-box {
       background: #fff;
-      border-radius: 8px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.05);
-    }
-    .output p {
+      padding: 20px;
       font-size: 18px;
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .result-line {
       margin: 10px 0;
     }
     #copyBtn {
       margin-top: 10px;
-      padding: 10px 15px;
+      padding: 8px 16px;
       font-size: 16px;
-      background-color: #007bff;
+      background: #007bff;
       color: white;
       border: none;
-      border-radius: 5px;
+      border-radius: 6px;
       cursor: pointer;
     }
-    #copyBtn:active {
-      background-color: #0056b3;
-    }
-    .copied {
+    #copied {
       color: green;
       font-size: 14px;
       margin-left: 10px;
+      display: none;
     }
   </style>
 </head>
 <body>
 
-  <h2>Final Price Discount Adjuster</h2>
+<h2>Price After Discount</h2>
 
-  <div class="input-group">
-    <label for="finalPrice">Current Final Price (₹):</label>
-    <input type="number" id="finalPrice" value="1000" step="0.01">
+<label for="finalPrice">Original Grand Total (₹):</label>
+<input type="number" id="finalPrice" value="1000" step="0.01">
+
+<label for="discount">Discount to Apply (₹):</label>
+<input type="number" id="discount" value="100" step="0.01">
+
+<label for="tax">Tax Rate (%):</label>
+<input type="number" id="tax" value="18" step="0.01">
+
+<label for="quantity">Quantity:</label>
+<input type="number" id="quantity" value="1" step="1" min="1">
+
+<div class="result-box">
+  <div class="result-line">New Grand Total: ₹<span id="newTotal">0.00</span></div>
+  <div class="result-line">
+    New Base Price: ₹<span id="unitBase">0.00</span>
+    <button id="copyBtn">Copy</button>
+    <span id="copied">Copied!</span>
   </div>
+</div>
 
-  <div class="input-group">
-    <label for="discount">Discount to Apply (₹):</label>
-    <input type="number" id="discount" value="100" step="0.01">
-  </div>
+<script>
+  const finalPrice = document.getElementById("finalPrice");
+  const discount = document.getElementById("discount");
+  const tax = document.getElementById("tax");
+  const quantity = document.getElementById("quantity");
+  const newTotal = document.getElementById("newTotal");
+  const unitBase = document.getElementById("unitBase");
+  const copyBtn = document.getElementById("copyBtn");
+  const copiedMsg = document.getElementById("copied");
 
-  <div class="input-group">
-    <label for="taxRate">Tax Rate (%):</label>
-    <input type="number" id="taxRate" value="18" step="0.01">
-  </div>
+  function calculate() {
+    const final = parseFloat(finalPrice.value) || 0;
+    const disc = parseFloat(discount.value) || 0;
+    const taxRate = parseFloat(tax.value) || 0;
+    const qty = parseInt(quantity.value) || 1;
 
-  <div class="output">
-    <p><strong>New Final Price:</strong> ₹<span id="newFinal">900.00</span></p>
-    <p>
-      <strong>New Base Price (Before Tax):</strong> ₹<span id="newBase">762.71</span>
-      <button id="copyBtn">Copy</button><span class="copied" id="copiedMsg" style="display: none;">Copied!</span>
-    </p>
-  </div>
+    const adjustedTotal = final - disc;
+    const base = adjustedTotal / (1 + taxRate / 100);
+    const unit = base / qty;
 
-  <script>
-    const finalPriceInput = document.getElementById('finalPrice');
-    const discountInput = document.getElementById('discount');
-    const taxRateInput = document.getElementById('taxRate');
-    const newFinalSpan = document.getElementById('newFinal');
-    const newBaseSpan = document.getElementById('newBase');
-    const copyBtn = document.getElementById('copyBtn');
-    const copiedMsg = document.getElementById('copiedMsg');
+    newTotal.textContent = adjustedTotal.toFixed(2);
+    unitBase.textContent = unit.toFixed(2);
+    copiedMsg.style.display = "none";
+  }
 
-    function calculateNewValues() {
-      const finalPrice = parseFloat(finalPriceInput.value) || 0;
-      const discount = parseFloat(discountInput.value) || 0;
-      const taxRate = parseFloat(taxRateInput.value) || 0;
+  function copyBasePrice() {
+    navigator.clipboard.writeText(unitBase.textContent);
+    copiedMsg.style.display = "inline";
+    setTimeout(() => copiedMsg.style.display = "none", 2000);
+  }
 
-      const newFinal = finalPrice - discount;
-      const newBase = newFinal / (1 + taxRate / 100);
+  [finalPrice, discount, tax, quantity].forEach(el => el.addEventListener("input", calculate));
+  copyBtn.addEventListener("click", copyBasePrice);
 
-      newFinalSpan.textContent = newFinal.toFixed(2);
-      newBaseSpan.textContent = newBase.toFixed(2);
-      copiedMsg.style.display = 'none'; // Reset copied message
-    }
-
-    function copyBaseToClipboard() {
-      const basePrice = newBaseSpan.textContent;
-      navigator.clipboard.writeText(basePrice).then(() => {
-        copiedMsg.style.display = 'inline';
-        setTimeout(() => copiedMsg.style.display = 'none', 2000);
-      });
-    }
-
-    finalPriceInput.addEventListener('input', calculateNewValues);
-    discountInput.addEventListener('input', calculateNewValues);
-    taxRateInput.addEventListener('input', calculateNewValues);
-    copyBtn.addEventListener('click', copyBaseToClipboard);
-
-    calculateNewValues(); // Initial run
-  </script>
+  calculate(); // initial load
+</script>
 
 </body>
 </html>
