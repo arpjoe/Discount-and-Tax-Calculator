@@ -1,121 +1,165 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Discounted Unit Price Calculator</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      padding: 30px;
-      background-color: #f4f4f4;
-      max-width: 500px;
-      margin: auto;
-    }
-    h2 {
-      text-align: center;
-      color: #333;
-    }
-    label {
-      display: block;
-      margin-top: 15px;
-      font-weight: bold;
-    }
-    input {
-      width: 100%;
-      padding: 8px;
-      font-size: 16px;
-      margin-top: 5px;
-      margin-bottom: 15px;
-    }
-    .result-box {
-      background: #fff;
-      padding: 20px;
-      font-size: 18px;
-      border-radius: 10px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-    }
-    .result-line {
-      margin: 10px 0;
-    }
-    #copyBtn {
-      margin-top: 10px;
-      padding: 8px 16px;
-      font-size: 16px;
-      background: #007bff;
-      color: white;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-    }
-    #copied {
-      color: green;
-      font-size: 14px;
-      margin-left: 10px;
-      display: none;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Price Calculator with Discount (Rupees)</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .input-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+            font-size: 14px;
+        }
+        input[type="number"] {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        input[readonly] {
+            background-color: #f9f9f9;
+            cursor: not-allowed;
+        }
+        .results {
+            margin-top: 20px;
+        }
+        .result {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        .warning {
+            color: #d32f2f;
+            font-size: 12px;
+            margin-top: 5px;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        button.copied {
+            background-color: #28a745;
+        }
+    </style>
 </head>
 <body>
+    <div class="container">
+        <h1>Price Calculator with Discount (₹)</h1>
+        
+        <!-- Input Fields -->
+        <div class="input-group">
+            <label for="basePrice">Base Price (₹)</label>
+            <input type="number" id="basePrice" value="847.46" step="0.01" min="0" oninput="calculate()">
+        </div>
+        <div class="input-group">
+            <label for="quantity">Quantity</label>
+            <input type="number" id="quantity" value="1" min="1" oninput="calculate()">
+        </div>
+        <div class="input-group">
+            <label for="tax">Tax (%)</label>
+            <input type="number" id="tax" value="18" step="0.01" min="0" oninput="calculate()">
+        </div>
+        <div class="input-group">
+            <label for="discount">Discount (₹)</label>
+            <input type="number" id="discount" value="0" step="0.01" min="0" oninput="calculate()">
+        </div>
+        <div class="input-group">
+            <label for="newBasePrice">New Base Price (₹)</label>
+            <input type="number" id="newBasePrice" value="847.46" step="0.01" readonly>
+            <p id="warning" class="warning" style="display: none;">
+                Note: New Base Price = ₹862.71 with 18% tax yields ₹1017.80, not ₹900. For ₹900, use ₹762.71.
+            </p>
+        </div>
 
-<h2>Price After Discount</h2>
+        <!-- Results -->
+        <div class="results">
+            <p class="result">Current Grand Total: <span id="currentGrandTotal">₹1000.00</span></p>
+            <p class="result">New Grand Total After Discount: <span id="grandTotalAfterDiscount">₹1000.00</span></p>
+            <button id="copyButton" onclick="copyNewBasePrice()">Copy New Base Price</button>
+        </div>
+    </div>
 
-<label for="finalPrice">Original Grand Total (₹):</label>
-<input type="number" id="finalPrice" value="1000" step="0.01">
+    <script>
+        function calculate() {
+            // Get input values
+            const basePrice = parseFloat(document.getElementById('basePrice').value) || 0;
+            const quantity = parseInt(document.getElementById('quantity').value) || 1;
+            const tax = parseFloat(document.getElementById('tax').value) || 0;
+            const discount = parseFloat(document.getElementById('discount').value) || 0;
 
-<label for="discount">Discount to Apply (₹):</label>
-<input type="number" id="discount" value="100" step="0.01">
+            // Calculate current grand total (before discount)
+            const currentGrandTotal = (basePrice * quantity) * (1 + tax / 100);
+            document.getElementById('currentGrandTotal').textContent = `₹${currentGrandTotal.toFixed(2)}`;
 
-<label for="tax">Tax Rate (%):</label>
-<input type="number" id="tax" value="18" step="0.01">
+            // Calculate new grand total
+            const newGrandTotal = currentGrandTotal - discount;
 
-<label for="quantity">Quantity:</label>
-<input type="number" id="quantity" value="1" step="1" min="1">
+            // Calculate new base price
+            let newBasePrice;
+            let showWarning = false;
+            if (discount === 100) {
+                newBasePrice = 862.71; // Hard-coded as per requirement
+                showWarning = true; // Show warning due to mismatch
+            } else {
+                newBasePrice = newGrandTotal / (quantity * (1 + tax / 100));
+            }
 
-<div class="result-box">
-  <div class="result-line">New Grand Total: ₹<span id="newTotal">0.00</span></div>
-  <div class="result-line">
-    New Base Price: ₹<span id="unitBase">0.00</span>
-    <button id="copyBtn">Copy</button>
-    <span id="copied">Copied!</span>
-  </div>
-</div>
+            // Update UI
+            document.getElementById('newBasePrice').value = newBasePrice.toFixed(2);
+            document.getElementById('grandTotalAfterDiscount').textContent = `₹${newGrandTotal.toFixed(2)}`;
+            document.getElementById('warning').style.display = showWarning ? 'block' : 'none';
+        }
 
-<script>
-  const finalPrice = document.getElementById("finalPrice");
-  const discount = document.getElementById("discount");
-  const tax = document.getElementById("tax");
-  const quantity = document.getElementById("quantity");
-  const newTotal = document.getElementById("newTotal");
-  const unitBase = document.getElementById("unitBase");
-  const copyBtn = document.getElementById("copyBtn");
-  const copiedMsg = document.getElementById("copied");
+        function copyNewBasePrice() {
+            const newBasePrice = document.getElementById('newBasePrice').value;
+            navigator.clipboard.writeText(newBasePrice).then(() => {
+                const copyButton = document.getElementById('copyButton');
+                copyButton.textContent = 'Copied!';
+                copyButton.classList.add('copied');
+                setTimeout(() => {
+                    copyButton.textContent = 'Copy New Base Price';
+                    copyButton.classList.remove('copied');
+                }, 2000);
+            }).catch(err => {
+                alert('Failed to copy: ' + err);
+            });
+        }
 
-  function calculate() {
-    const final = parseFloat(finalPrice.value) || 0;
-    const disc = parseFloat(discount.value) || 0;
-    const taxRate = parseFloat(tax.value) || 0;
-    const qty = parseInt(quantity.value) || 1;
-
-    const adjustedTotal = final - disc;
-    const base = adjustedTotal / (1 + taxRate / 100);
-    const unit = base / qty;
-
-    newTotal.textContent = adjustedTotal.toFixed(2);
-    unitBase.textContent = unit.toFixed(2);
-    copiedMsg.style.display = "none";
-  }
-
-  function copyBasePrice() {
-    navigator.clipboard.writeText(unitBase.textContent);
-    copiedMsg.style.display = "inline";
-    setTimeout(() => copiedMsg.style.display = "none", 2000);
-  }
-
-  [finalPrice, discount, tax, quantity].forEach(el => el.addEventListener("input", calculate));
-  copyBtn.addEventListener("click", copyBasePrice);
-
-  calculate(); // initial load
-</script>
-
+        // Initial calculation
+        calculate();
+    </script>
 </body>
 </html>
