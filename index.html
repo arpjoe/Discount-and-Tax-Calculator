@@ -148,7 +148,7 @@
             // Calculate new unit price and new grand total
             const newGrandTotal = grandTotal - discount;
             const newTaxableValue = newGrandTotal / (1 + tax / 100);
-            const newUnitPrice = newTaxableValue / quantity;
+            const newUnitPrice = (newTaxableValue / quantity) + (discount / quantity) ;
 
             // Update outputs
             document.getElementById('currentUnitPrice').value = currentUnitPrice >= 0 ? currentUnitPrice.toFixed(2) : '';
