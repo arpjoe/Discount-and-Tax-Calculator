@@ -3,68 +3,71 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Price Calculator with Discount (Rupees)</title>
+    <title>Unit Price Calculator with Discount (Rupees)</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
-            background-color: #f0f0f0;
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f4f9;
             margin: 0;
             padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
         }
         .container {
             max-width: 600px;
-            margin: 0 auto;
-            background-color: white;
-            padding: 20px;
+            width: 100%;
+            background-color: #ffffff;
+            padding: 24px;
             border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
         h1 {
             text-align: center;
             color: #333;
-            margin-bottom: 20px;
+            font-size: 24px;
+            margin-bottom: 24px;
         }
         .input-group {
-            margin-bottom: 15px;
+            margin-bottom: 16px;
         }
         label {
             display: block;
-            margin-bottom: 5px;
             color: #555;
             font-size: 14px;
+            margin-bottom: 6px;
+            font-weight: 500;
         }
         input[type="number"] {
             width: 100%;
-            padding: 8px;
-            border: 1px solid #ccc;
+            padding: 10px;
+            border: 1px solid #ddd;
             border-radius: 4px;
             font-size: 16px;
+            box-sizing: border-box;
+            transition: border-color 0.2s;
+        }
+        input[type="number"]:focus {
+            border-color: #007bff;
+            outline: none;
         }
         input[readonly] {
             background-color: #f9f9f9;
             cursor: not-allowed;
         }
         .results {
-            margin-top: 20px;
-        }
-        .result {
-            font-weight: bold;
-            color: #333;
-            margin-bottom: 10px;
-        }
-        .warning {
-            color: #d32f2f;
-            font-size: 12px;
-            margin-top: 5px;
+            margin-top: 24px;
+            text-align: center;
         }
         button {
-            padding: 10px 20px;
+            padding: 12px 24px;
             background-color: #007bff;
-            color: white;
+            color: #fff;
             border: none;
             border-radius: 4px;
-            cursor: pointer;
             font-size: 14px;
+            cursor: pointer;
             transition: background-color 0.3s;
         }
         button:hover {
@@ -73,89 +76,105 @@
         button.copied {
             background-color: #28a745;
         }
+        button:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.3);
+        }
+        @media (max-width: 480px) {
+            .container {
+                padding: 16px;
+            }
+            h1 {
+                font-size: 20px;
+            }
+            input[type="number"], button {
+                font-size: 14px;
+            }
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Price Calculator with Discount (₹)</h1>
+        <h1>Unit Price Calculator with Discount (₹)</h1>
         
         <!-- Input Fields -->
         <div class="input-group">
-            <label for="basePrice">Base Price (₹)</label>
-            <input type="number" id="basePrice" value="847.46" step="0.01" min="0" oninput="calculate()">
-        </div>
-        <div class="input-group">
-            <label for="quantity">Quantity</label>
-            <input type="number" id="quantity" value="1" min="1" oninput="calculate()">
-        </div>
-        <div class="input-group">
-            <label for="tax">Tax (%)</label>
-            <input type="number" id="tax" value="18" step="0.01" min="0" oninput="calculate()">
+            <label for="grandTotal">Current Grand Total (₹)</label>
+            <input type="number" id="grandTotal" step="0.01" min="0" placeholder="Enter grand total in ₹" oninput="calculate()">
         </div>
         <div class="input-group">
             <label for="discount">Discount (₹)</label>
-            <input type="number" id="discount" value="0" step="0.01" min="0" oninput="calculate()">
+            <input type="number" id="discount" step="0.01" min="0" placeholder="Enter discount in ₹" oninput="calculate()">
         </div>
         <div class="input-group">
-            <label for="newBasePrice">New Base Price (₹)</label>
-            <input type="number" id="newBasePrice" value="847.46" step="0.01" readonly>
-            <p id="warning" class="warning" style="display: none;">
-                Note: New Base Price = ₹862.71 with 18% tax yields ₹1017.80, not ₹900. For ₹900, use ₹762.71.
-            </p>
+            <label for="quantity">Quantity</label>
+            <input type="number" id="quantity" min="1" step="1" placeholder="Enter quantity" oninput="calculate()">
+        </div>
+        <div class="input-group">
+            <label for="tax">Tax (%)</label>
+            <input type="number" id="tax" step="0.01" min="0" placeholder="Enter tax percentage" oninput="calculate()">
+        </div>
+        <div class="input-group">
+            <label for="currentUnitPrice">Current Unit Price (₹)</label>
+            <input type="number" id="currentUnitPrice" step="0.01" readonly>
+        </div>
+        <div class="input-group">
+            <label for="newUnitPrice">New Unit Price (₹)</label>
+            <input type="number" id="newUnitPrice" step="0.01" readonly>
+        </div>
+        <div class="input-group">
+            <label for="newGrandTotal">New Grand Total (₹)</label>
+            <input type="number" id="newGrandTotal" step="0.01" readonly>
         </div>
 
-        <!-- Results -->
+        <!-- Copy Button -->
         <div class="results">
-            <p class="result">Current Grand Total: <span id="currentGrandTotal">₹1000.00</span></p>
-            <p class="result">New Grand Total After Discount: <span id="grandTotalAfterDiscount">₹1000.00</span></p>
-            <button id="copyButton" onclick="copyNewBasePrice()">Copy New Base Price</button>
+            <button id="copyButton" onclick="copyNewUnitPrice()">Copy New Unit Price</button>
         </div>
     </div>
 
     <script>
         function calculate() {
-            // Get input values
-            const basePrice = parseFloat(document.getElementById('basePrice').value) || 0;
+            // Parse inputs with fallback values
+            const grandTotal = parseFloat(document.getElementById('grandTotal').value) || 0;
+            const discount = parseFloat(document.getElementById('discount').value) || 0;
             const quantity = parseInt(document.getElementById('quantity').value) || 1;
             const tax = parseFloat(document.getElementById('tax').value) || 0;
-            const discount = parseFloat(document.getElementById('discount').value) || 0;
 
-            // Calculate current grand total (before discount)
-            const currentGrandTotal = (basePrice * quantity) * (1 + tax / 100);
-            document.getElementById('currentGrandTotal').textContent = `₹${currentGrandTotal.toFixed(2)}`;
+            // Calculate current unit price
+            const currentTaxableValue = grandTotal / (1 + tax / 100);
+            const currentUnitPrice = currentTaxableValue / quantity;
 
-            // Calculate new grand total
-            const newGrandTotal = currentGrandTotal - discount;
+            // Calculate new unit price and new grand total
+            const newGrandTotal = grandTotal - discount;
+            const newTaxableValue = newGrandTotal / (1 + tax / 100);
+            const newUnitPrice = newTaxableValue / quantity;
 
-            // Calculate new base price
-            let newBasePrice;
-            let showWarning = false;
-            if (discount === 100) {
-                newBasePrice = 862.71; // Hard-coded as per requirement
-                showWarning = true; // Show warning due to mismatch
-            } else {
-                newBasePrice = newGrandTotal / (quantity * (1 + tax / 100));
-            }
-
-            // Update UI
-            document.getElementById('newBasePrice').value = newBasePrice.toFixed(2);
-            document.getElementById('grandTotalAfterDiscount').textContent = `₹${newGrandTotal.toFixed(2)}`;
-            document.getElementById('warning').style.display = showWarning ? 'block' : 'none';
+            // Update outputs
+            document.getElementById('currentUnitPrice').value = currentUnitPrice >= 0 ? currentUnitPrice.toFixed(2) : '';
+            document.getElementById('newUnitPrice').value = newUnitPrice >= 0 ? newUnitPrice.toFixed(2) : '';
+            document.getElementById('newGrandTotal').value = newGrandTotal >= 0 ? newGrandTotal.toFixed(2) : '';
         }
 
-        function copyNewBasePrice() {
-            const newBasePrice = document.getElementById('newBasePrice').value;
-            navigator.clipboard.writeText(newBasePrice).then(() => {
-                const copyButton = document.getElementById('copyButton');
-                copyButton.textContent = 'Copied!';
-                copyButton.classList.add('copied');
-                setTimeout(() => {
-                    copyButton.textContent = 'Copy New Base Price';
-                    copyButton.classList.remove('copied');
-                }, 2000);
-            }).catch(err => {
-                alert('Failed to copy: ' + err);
-            });
+        function copyNewUnitPrice() {
+            const newUnitPrice = document.getElementById('newUnitPrice').value;
+            if (newUnitPrice) {
+                navigator.clipboard.writeText(newUnitPrice)
+                    .then(() => {
+                        const copyButton = document.getElementById('copyButton');
+                        copyButton.textContent = 'Copied!';
+                        copyButton.classList.add('copied');
+                        setTimeout(() => {
+                            copyButton.textContent = 'Copy New Unit Price';
+                            copyButton.classList.remove('copied');
+                        }, 2000);
+                    })
+                    .catch(err => {
+                        alert(`Failed to copy: ${err}`);
+                    });
+            } else {
+                alert('No unit price to copy. Please enter valid inputs.');
+            }
         }
 
         // Initial calculation
