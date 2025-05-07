@@ -39,6 +39,24 @@
       font-size: 18px;
       margin: 10px 0;
     }
+    #copyBtn {
+      margin-top: 10px;
+      padding: 10px 15px;
+      font-size: 16px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    #copyBtn:active {
+      background-color: #0056b3;
+    }
+    .copied {
+      color: green;
+      font-size: 14px;
+      margin-left: 10px;
+    }
   </style>
 </head>
 <body>
@@ -62,7 +80,10 @@
 
   <div class="output">
     <p><strong>New Final Price:</strong> ₹<span id="newFinal">900.00</span></p>
-    <p><strong>New Base Price (Before Tax):</strong> ₹<span id="newBase">762.71</span></p>
+    <p>
+      <strong>New Base Price (Before Tax):</strong> ₹<span id="newBase">762.71</span>
+      <button id="copyBtn">Copy</button><span class="copied" id="copiedMsg" style="display: none;">Copied!</span>
+    </p>
   </div>
 
   <script>
@@ -71,6 +92,8 @@
     const taxRateInput = document.getElementById('taxRate');
     const newFinalSpan = document.getElementById('newFinal');
     const newBaseSpan = document.getElementById('newBase');
+    const copyBtn = document.getElementById('copyBtn');
+    const copiedMsg = document.getElementById('copiedMsg');
 
     function calculateNewValues() {
       const finalPrice = parseFloat(finalPriceInput.value) || 0;
@@ -82,13 +105,23 @@
 
       newFinalSpan.textContent = newFinal.toFixed(2);
       newBaseSpan.textContent = newBase.toFixed(2);
+      copiedMsg.style.display = 'none'; // Reset copied message
+    }
+
+    function copyBaseToClipboard() {
+      const basePrice = newBaseSpan.textContent;
+      navigator.clipboard.writeText(basePrice).then(() => {
+        copiedMsg.style.display = 'inline';
+        setTimeout(() => copiedMsg.style.display = 'none', 2000);
+      });
     }
 
     finalPriceInput.addEventListener('input', calculateNewValues);
     discountInput.addEventListener('input', calculateNewValues);
     taxRateInput.addEventListener('input', calculateNewValues);
+    copyBtn.addEventListener('click', copyBaseToClipboard);
 
-    calculateNewValues(); // Initial calculation
+    calculateNewValues(); // Initial run
   </script>
 
 </body>
